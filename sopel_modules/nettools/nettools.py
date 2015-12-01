@@ -29,6 +29,12 @@ def lookupaddr(addr):
     except socket.herror:
         return None, None, None
 
+def lookuphost(hostname):
+    try:
+        return socket.gethostbyname(socket.getfqdn(hostname))
+    except socket.gaierror:
+        return None
+
 @commands('iplookup', 'ip')
 def ip(bot, trigger):
     """IP Lookup tool"""
@@ -45,6 +51,10 @@ def ip(bot, trigger):
             response = "Unable to resolve hostname: %s" % query
     else:
         # query is hostname
-        ip = socket.gethostbyname(socket.getfqdn(query))
-        response = "IP: %s" % ip
+        ip = lookuphost(query)
+        if ip is not None:
+            response = "IP: %s" % ip
+        else:
+            response = "Unable to lookup ip: %s" % query
+
     bot.say(response)
